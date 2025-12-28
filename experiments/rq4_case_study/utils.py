@@ -93,6 +93,11 @@ def get_action_completion(agent: Agent, screen: Screen, mock_actions: list[str])
 
     actions, action_names = [], []
     translator = Translator(screen)
+    if isinstance(response, list) and len(response) > 0:
+        response = response[0].get('text', '')
+    else:
+        response = str(response)
+    #print(response)
     matches = re.findall(r"(\w+)\((.*)\)", response)
     for method_name, params in matches:
         method = getattr(translator, method_name, None)
