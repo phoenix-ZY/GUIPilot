@@ -42,7 +42,7 @@ for p, process_path in enumerate(process_paths):
     process: list = json.load(open(json_path, "r"))
 
     for s, step in enumerate(process):
-        if s != 4: continue
+        # if s != 4: continue
         screen_filename: str = step["screen"]
         if "branch" in screen_filename: continue
         real_screen: Screen = get_screen(implementation_path, screen_filename)

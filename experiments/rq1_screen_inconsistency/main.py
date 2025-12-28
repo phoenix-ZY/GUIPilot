@@ -62,6 +62,7 @@ if __name__ == "__main__":
     random.seed(42)
 
     dataset_path = os.getenv("DATASET_PATH")
+
     all_paths: list[str] = []
     for app_path in glob.glob(os.path.join(dataset_path, "**", "*")):
         image_paths = glob.glob(f"{app_path}/*.jpg")
