@@ -1,1 +1,1 @@
-from .agent import Agent, GPTAgent
+from .agent import Agent, GPTAgent, QwenAgent

@@ -1,0 +1,35 @@
+[
+  {
+    "screen": "1.jpg",
+    "mock_actions": ["click(0)"],
+    "actions": [{"action": "click", "bounds": [10, 20, 100, 50]}]
+  },
+  {
+    "screen": "2.jpg",
+    "mock_actions": ["click(1)"],
+    "actions": [{"action": "click", "bounds": [110, 20, 200, 50]}]
+  },
+  {
+    "screen": "3.jpg",
+    "mock_actions": ["input(2,aaa)", "click(3)"],
+    "actions": [
+      {"action": "input", "bounds": [210, 20, 300, 50], "text": "aaa"},
+      {"action": "click", "bounds": [310, 20, 400, 50]}
+    ]
+  },
+  {
+    "screen": "4.jpg",
+    "mock_actions": ["click(4)"],
+    "actions": [{"action": "click", "bounds": [410, 20, 500, 50]}]
+  },
+  {
+    "screen": "5.jpg",
+    "mock_actions": ["click(5)"],
+    "actions": [{"action": "click", "bounds": [510, 20, 600, 50]}]
+  },
+  {
+    "screen": "6.jpg",
+    "mock_actions": ["click(6)"],
+    "actions": [{"action": "click", "bounds": [610, 20, 700, 50]}]
+  }
+]
