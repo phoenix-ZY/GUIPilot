@@ -2,7 +2,7 @@ Given the current screen and description,
 Please provide the list of correct actions
 
 ## Guidelines
-1. You should provide Python actions, DO NOT explain, DO NOT use natural language description.
+1. You should provide Python actions. You are encouraged to briefly explain your thought process before outputting the actions.
 2. If you're asked to type, check if you need to click() to focus on the input box, otherwise just use send_keys().
 3. This is NOT Selenium, Puppeteer, or Playwright. DO NOT use driver.
 4. Pay attention to inverted/reversed sliders, where swiping in one direction actually increases the value in the opposite direction.

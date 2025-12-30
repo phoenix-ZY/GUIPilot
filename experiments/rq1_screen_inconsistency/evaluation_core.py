@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 # 确保你的 guipilot, mutate, utils 等模块可以被正确导入
 # 如果它们在同一目录下，这应该没问题
 from guipilot.matcher import WidgetMatcher, GUIPilotV2 as GUIPilotMatcher, GVT as GVTMatcher
-from guipilot.checker import ScreenChecker, GVT as GVTChecker
+from guipilot.checker import ScreenChecker, GVT as GVTChecker, GUIPilot as GUIPilotChecker
 from mutate import insert_row, delete_row, swap_widgets, change_widgets_text, change_widgets_color
 from utils import load_screen, convert_inconsistencies, filter_swapped_predictions, filter_overlap_predictions, filter_color, filter_text
 
@@ -26,7 +26,7 @@ load_dotenv()
 warnings.filterwarnings("ignore")
 random.seed(42)
 
-dataset_path = os.getenv("DATASET_PATH", "./dataset") # 提供一个默认值
+dataset_path = os.getenv("RQ1_DATASET_PATH", os.getenv("DATASET_PATH", "./dataset")) # 优先使用 RQ1_DATASET_PATH
 
 # 获取所有图片路径
 all_paths: list[str] = []
@@ -53,10 +53,13 @@ postprocessing = {
     "change_widgets_color": lambda y_pred, y_true, s1, s2: filter_text(y_pred, y_true, s1, None)
 }
 matchers: dict[str, Callable] = {
-    "gvt": lambda screen: GVTMatcher(screen.image.shape[0] / 8),
+    "gvt": lambda screen: GVTMatcher(1.0 / 8),
     "guipilot": lambda screen: GUIPilotMatcher()
 }
-checkers: dict[str, ScreenChecker] = {"gvt": GVTChecker()}
+checkers: dict[str, ScreenChecker] = {
+    "gvt": GVTChecker(),
+    "guipilot": GUIPilotChecker()
+}
 
 def metrics(y_pred: set, y_true: set) -> tuple[int, int, int, int]:
     a = set([(x[0], x[1]) for x in y_pred])
@@ -81,7 +84,12 @@ def visualize_for_gui(screen1: Screen, screen2: Screen, pairs: set, inconsistenc
     THICKNESS = 2
 
     # --- 绘制不一致的控件 (红色) ---
-    for s1_id, s2_id, _ in inconsistencies:
+    for item in inconsistencies:
+        if len(item) == 3:
+            s1_id, s2_id, _ = item
+        else:
+            s1_id, s2_id = item
+
         if s1_id is not None:
             widget = screen1.widgets.get(s1_id)
             if widget:
@@ -100,7 +108,12 @@ def visualize_for_gui(screen1: Screen, screen2: Screen, pairs: set, inconsistenc
     # --- 绘制匹配且一致的控件 (绿色) ---
     # 首先，创建一个包含所有不一致配对的集合，以便快速查找
     inconsistent_pairs = set()
-    for s1_id, s2_id, _ in inconsistencies:
+    for item in inconsistencies:
+        if len(item) == 3:
+            s1_id, s2_id, _ = item
+        else:
+            s1_id, s2_id = item
+
         if s1_id is not None and s2_id is not None:
             inconsistent_pairs.add((s1_id, s2_id))
 

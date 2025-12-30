@@ -62,47 +62,112 @@ def process_inputs_and_run(dropdown_path, uploaded_image_path, uploaded_json, mu
 
 
 # --- 定义界面 (UI修改) ---
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
-    gr.Markdown("# GUI 一致性检测评估工具")
-    gr.Markdown("选择一个UI截图和评估方法，然后点击“运行评估”来查看结果。")
+theme = gr.themes.Soft(
+    primary_hue="blue",
+    secondary_hue="slate",
+    font=[gr.themes.GoogleFont("Inter"), "ui-sans-serif", "system-ui", "sans-serif"]
+).set(
+    button_primary_background_fill="*primary_500",
+    button_primary_background_fill_hover="*primary_600",
+)
 
-    with gr.Row():
-        with gr.Column(scale=1):
-            gr.Markdown("### 1. 上传文件或从数据集中选择")
-            
-            # --- 关键修改在这里 ---
-            # 将 gr.Image 的 type 从 "file" 改为 "filepath"
-            image_upload = gr.Image(type="filepath", label="上传UI截图 (.jpg, .png)")
-            
-            json_upload = gr.File(label="上传对应的JSON标注文件 (.json)", file_types=[".json"])
-            
-            gr.Markdown("<center>或</center>")
-            
-            image_dropdown = gr.Dropdown(choices=image_choices, label="从数据集中选择")
-            
-            gr.Markdown("### 2. 选择评估模型")
-            mutation_dropdown = gr.Dropdown(choices=mutation_choices, label="选择修改（突变）类型", value="swap_widgets")
-            matcher_dropdown = gr.Dropdown(choices=matcher_choices, label="选择匹配算法", value="guipilot")
-            checker_dropdown = gr.Dropdown(choices=checker_choices, label="选择检查算法", value="gvt")
-            run_button = gr.Button("运行评估", variant="primary")
+with gr.Blocks(theme=theme, title="GUIPilot Evaluation") as demo:
+    gr.Markdown(
+        """
+        # 🧭 GUI Pilot 一致性检测平台
+        
+        本工具用于评估 GUI 界面在不同环境或版本下的视觉一致性。通过模拟突变（Mutation）并使用不同的匹配（Matcher）与检查（Checker）算法，检测并可视化界面中的异常。
+        """
+    )
 
-        with gr.Column(scale=3):
-            gr.Markdown("### 3. 可视化结果")
-            gr.Markdown("（左：原始截图，右：修改后截图。绿色框表示匹配且一致，红色框表示检测到的不一致）")
-            output_image = gr.Image(label="结果对比")
+    with gr.Row(equal_height=False):
+        # 左侧控制面板
+        with gr.Column(scale=1, min_width=320):
+            gr.Markdown("### 🛠️ 配置面板")
+            
+            with gr.Tabs():
+                with gr.TabItem("📂 数据集选择"):
+                    image_dropdown = gr.Dropdown(
+                        choices=image_choices, 
+                        label="选择测试样本", 
+                        info="从预置数据集中选择一个 UI 截图",
+                        interactive=True
+                    )
+                
+                with gr.TabItem("📤 本地上传"):
+                    image_upload = gr.Image(
+                        type="filepath", 
+                        label="上传 UI 截图", 
+                        height=200,
+                        sources=["upload", "clipboard"]
+                    )
+                    json_upload = gr.File(
+                        label="上传 JSON 标注", 
+                        file_types=[".json"],
+                        file_count="single"
+                    )
+                    gr.Markdown("*注意：如果上传了文件，将优先使用上传的数据。*")
 
-    with gr.Row():
-        with gr.Column():
-            gr.Markdown("### 4. 性能指标")
-            output_metrics = gr.Textbox(label="评估指标", lines=10)
-        with gr.Column():
-            gr.Markdown("### 5. 详细对比")
-            output_details = gr.Textbox(label="预测 vs. 真实不一致列表", lines=10)
+            with gr.Group():
+                gr.Markdown("#### ⚙️ 算法参数")
+                mutation_dropdown = gr.Dropdown(
+                    choices=mutation_choices, 
+                    label="突变类型 (Mutation)", 
+                    value="swap_widgets",
+                    info="模拟界面发生的不一致类型"
+                )
+                matcher_dropdown = gr.Dropdown(
+                    choices=matcher_choices, 
+                    label="匹配算法 (Matcher)", 
+                    value="guipilot",
+                    info="用于关联前后两个界面的组件 (GVT仅支持竖屏)"
+                )
+                checker_dropdown = gr.Dropdown(
+                    choices=checker_choices, 
+                    label="检查算法 (Checker)", 
+                    value="gvt",
+                    info="用于判定组件属性是否一致"
+                )
+            
+            run_button = gr.Button("🚀 运行评估 (Run Evaluation)", variant="primary", size="lg")
 
-    # 更新按钮点击事件的 inputs
+        # 右侧结果展示
+        with gr.Column(scale=2):
+            gr.Markdown("### 👁️ 可视化结果")
+            output_image = gr.Image(
+                label="检测结果对比", 
+                show_label=False,
+                height=600, 
+                interactive=False,
+                elem_id="output_img"
+            )
+            gr.Markdown("*(左图：原始界面 | 右图：突变后界面 | 🟩 绿色：匹配一致 | 🟥 红色：检测到不一致)*")
+
+            with gr.Row():
+                with gr.Column(scale=1):
+                    gr.Markdown("#### 📊 评估指标")
+                    output_metrics = gr.Markdown() # Use Markdown for cleaner text
+                
+                with gr.Column(scale=1):
+                    gr.Markdown("#### 📝 详细日志")
+                    output_details = gr.Textbox(
+                        label="不一致详情", 
+                        lines=8, 
+                        show_copy_button=True,
+                        text_align="left"
+                    )
+
+    # 事件绑定
     run_button.click(
         fn=process_inputs_and_run,
-        inputs=[image_dropdown, image_upload, json_upload, mutation_dropdown, matcher_dropdown, checker_dropdown],
+        inputs=[
+            image_dropdown, 
+            image_upload, 
+            json_upload, 
+            mutation_dropdown, 
+            matcher_dropdown, 
+            checker_dropdown
+        ],
         outputs=[output_image, output_metrics, output_details]
     )
 

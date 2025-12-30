@@ -24,10 +24,9 @@ def get_processes(mockups_path: str) -> list[str]:
 
 
 base_path = os.path.dirname(os.path.abspath(__file__))
-mockups_path = os.getenv("DATASET_PATH")
-print(mockups_path)
-process_paths = get_processes(mockups_path)
 load_dotenv()
+mockups_path = os.getenv("DATASET_PATH")
+process_paths = get_processes(mockups_path)
 
 for p, process_path in enumerate(process_paths):
     process_id = process_path.replace(mockups_path, "")

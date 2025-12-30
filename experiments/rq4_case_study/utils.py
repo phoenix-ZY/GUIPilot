@@ -112,7 +112,7 @@ def get_action_completion(agent: Agent, screen: Screen, mock_actions: list[str])
 
     actions_raw = [f"{method_name}({[params]})" for method_name, params in matches]
     image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-    return image, action_names, actions_raw, actions
+    return image, action_names, actions_raw, actions, response
 
 
 def get_report(process_id, screen_id, match_time, check_time, pairs, inconsistencies, action_correct, action_trials) -> str:
