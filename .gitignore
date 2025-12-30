@@ -5,7 +5,6 @@ __pycache__
 *.zip
 *.txt
 *.apk
-*.pt
 build/
 .env
 
