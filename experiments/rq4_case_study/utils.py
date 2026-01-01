@@ -98,10 +98,14 @@ def get_action_completion(agent: Agent, screen: Screen, mock_actions: list[str])
     else:
         response = str(response)
     #print(response)
-    matches = re.findall(r"(\w+)\((.*)\)", response)
+    matches = re.findall(r"(\w+)\((.*?)\)", response)
     for method_name, params in matches:
         method = getattr(translator, method_name, None)
-        param_list = eval(f"({params})")
+        try:
+            param_list = eval(f"({params})")
+        except (NameError, SyntaxError):
+            param_list = params
+            
         if not isinstance(param_list, tuple):
             param_list = (param_list,)
             

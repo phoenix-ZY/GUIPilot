@@ -11,7 +11,7 @@ class OCR():
         self.service_url = service_url
 
         if service_url is None:
-            self.ocr = PaddleOCR(lang="ch", show_log=False, use_gpu=True)
+            self.ocr = PaddleOCR(lang="ch", show_log=False, use_gpu=False, use_mkldnn=False, enable_mkldnn=False)
 
     def _local(self, image: np.ndarray) -> tuple[list, list]:
         texts, text_bboxes = [], []
